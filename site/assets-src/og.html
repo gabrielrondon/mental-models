@@ -1,0 +1,48 @@
+<!doctype html><html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@500;600&family=JetBrains+Mono:wght@500&family=Newsreader:ital,wght@1,400&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #070a12; }
+  .og { width: 1200px; height: 630px; position: relative; overflow: hidden; background: #070a12; color: #e8ebf4; font-family: Geist, system-ui, sans-serif; }
+  .grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px); background-size: 48px 48px; -webkit-mask-image: radial-gradient(ellipse 70% 70% at 60% 30%, #000 20%, transparent 75%); }
+  .glow { position: absolute; border-radius: 50%; filter: blur(70px); opacity: .6; }
+  .in { position: absolute; inset: 64px 72px; display: flex; flex-direction: column; justify-content: space-between; }
+  .brand { display: flex; align-items: center; gap: 14px; font-weight: 600; font-size: 22px; }
+  .tag { font-family: "JetBrains Mono", monospace; font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: #22d3ee; margin-left: 10px; }
+  h1 { margin: 0; font-size: 84px; line-height: .98; letter-spacing: -.035em; font-weight: 600; max-width: 12ch; }
+  h1 span { background: linear-gradient(90deg, #22d3ee, #7dd3fc, #a78bfa); -webkit-background-clip: text; color: transparent; }
+  .ap { font-family: Newsreader, Georgia, serif; font-style: italic; font-size: 26px; color: #b9c0d4; max-width: 30ch; margin-top: 22px; }
+  .stats { display: flex; gap: 48px; }
+  .stats b { display: block; font-family: "JetBrains Mono", monospace; font-size: 40px; font-weight: 500; letter-spacing: -.03em; line-height: 1; }
+  .stats span { display: block; margin-top: 8px; font-size: 14px; color: #8f97ad; }
+  .foot { position: absolute; right: 72px; bottom: 64px; font-size: 15px; color: #8f97ad; text-align: right; }
+  .foot b { color: #e8ebf4; font-weight: 500; }
+  .nodes { position: absolute; right: 60px; top: 80px; width: 420px; height: 300px; }
+</style></head><body>
+<div class="og" id="og">
+  <div class="grid"></div>
+  <div class="glow" style="left:-80px;top:-120px;width:520px;height:420px;background:#22d3ee;opacity:.28"></div>
+  <div class="glow" style="right:-60px;top:120px;width:460px;height:420px;background:#a78bfa;opacity:.32"></div>
+  <svg class="nodes" viewBox="0 0 420 300" fill="none">
+    <g stroke="#3b4a7a" stroke-width="1.4"><path d="M60 60L180 40L300 90L360 200L220 260L90 220Z"/><path d="M180 40L220 150L360 200M60 60L220 150L90 220M300 90L220 150L220 260"/></g>
+    <g stroke="#fb7185" stroke-width="1.6" stroke-dasharray="4 5"><path d="M60 60L300 90M90 220L360 200"/></g>
+    <g stroke="#070a12" stroke-width="3"><circle cx="60" cy="60" r="10" fill="#22d3ee"/><circle cx="180" cy="40" r="10" fill="#34d399"/><circle cx="300" cy="90" r="10" fill="#a78bfa"/><circle cx="360" cy="200" r="10" fill="#fbbf24"/><circle cx="220" cy="260" r="10" fill="#fb7185"/><circle cx="90" cy="220" r="10" fill="#7dd3fc"/><circle cx="220" cy="150" r="13" fill="#e8ebf4"/></g>
+  </svg>
+  <div class="in">
+    <div class="brand">
+      <svg width="34" height="34" viewBox="0 0 32 32"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#22d3ee"/><stop offset="1" stop-color="#a78bfa"/></linearGradient></defs><rect x="1.5" y="1.5" width="29" height="29" rx="8" fill="#0b0f1d" stroke="url(#g)" stroke-width="1.5"/><g stroke="url(#g)" stroke-width="1.6" stroke-linecap="round" fill="none"><path d="M9 22 L16 10 L23 22"/><path d="M9 10 L23 22 M23 10 L9 22" opacity=".55"/></g><g fill="#e8ebf4"><circle cx="9" cy="10" r="1.7"/><circle cx="23" cy="10" r="1.7"/><circle cx="16" cy="10" r="1.7"/><circle cx="9" cy="22" r="1.7"/><circle cx="23" cy="22" r="1.7"/></g></svg>
+      Mental Models <span class="tag">open source · MIT · MCP</span>
+    </div>
+    <div>
+      <h1>The Mental Models <span>Latticework</span></h1>
+      <p class="ap">“If the facts don’t hang together on a latticework of theory, you don’t have them in a usable form.”</p>
+    </div>
+    <div class="stats">
+      <div><b>50+</b><span>models</span></div>
+      <div><b>8</b><span>disciplines</span></div>
+      <div><b>140</b><span>connections</span></div>
+      <div><b>100</b><span>Anki cards</span></div>
+    </div>
+  </div>
+  <div class="foot"><b>mentalmodels.tuturama.com</b><br>A Tuturama Open Source Initiative</div>
+</div>
+</body></html>
