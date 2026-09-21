@@ -1,0 +1,34 @@
+name: Validate Mental Models
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Validate Models Schema
+        run: |
+          python3 scripts/validate_models.py
+
+      - name: Test CLI Interface
+        run: |
+          python3 cli/mm list
+          python3 cli/mm search "thinking"
+          python3 cli/mm random
+
+      - name: Test Graph & Anki Exporters
+        run: |
+          python3 scripts/generate_graph.py
+          python3 scripts/export_anki.py

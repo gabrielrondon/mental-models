@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Mental Models Latticework | Interactive Graph</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: #0f172a;
+      color: #f8fafc;
+      overflow: hidden;
+      display: flex;
+      height: 100vh;
+      width: 100vw;
+    }
+    #graph-container {
+      flex: 1;
+      height: 100%;
+      position: relative;
+    }
+    svg {
+      width: 100%;
+      height: 100%;
+      cursor: grab;
+    }
+    svg:active { cursor: grabbing; }
+    
+    /* Sidebar */
+    #sidebar {
+      width: 380px;
+      height: 100%;
+      background: #1e293b;
+      border-left: 1px solid #334155;
+      padding: 24px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      box-shadow: -4px 0 24px rgba(0,0,0,0.4);
+      z-index: 10;
+    }
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 4px 8px;
+      border-radius: 6px;
+      background: #334155;
+      color: #94a3b8;
+    }
+    h1 { font-size: 20px; font-weight: 700; color: #38bdf8; }
+    h2 { font-size: 22px; font-weight: 700; color: #f8fafc; line-height: 1.3; }
+    .aphorism {
+      font-style: italic;
+      color: #fbbf24;
+      border-left: 3px solid #fbbf24;
+      padding-left: 12px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .summary {
+      font-size: 14px;
+      line-height: 1.6;
+      color: #cbd5e1;
+    }
+    .section-title {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #94a3b8;
+      margin-top: 8px;
+    }
+    .triggers-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .triggers-list li {
+      font-size: 13px;
+      background: #0f172a;
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid #334155;
+      color: #94a3b8;
+      line-height: 1.4;
+    }
+    .controls {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      display: flex;
+      gap: 8px;
+      z-index: 5;
+    }
+    .btn {
+      background: #1e293b;
+      color: #f8fafc;
+      border: 1px solid #475569;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn:hover { background: #334155; border-color: #94a3b8; }
+    .legend {
+      position: absolute;
+      bottom: 16px;
+      left: 16px;
+      background: rgba(30, 41, 59, 0.9);
+      backdrop-filter: blur(8px);
+      padding: 12px 16px;
+      border-radius: 8px;
+      border: 1px solid #334155;
+      font-size: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      z-index: 5;
+    }
+    .legend-item { display: flex; align-items: center; gap: 8px; }
+    .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+  </style>
+</head>
+<body>
+
+  <div id="graph-container">
+    <div class="controls">
+      <button class="btn" onclick="resetZoom()">Reset View</button>
+      <button class="btn" onclick="reheatSimulation()">Re-cluster</button>
+    </div>
+    
+    <div class="legend">
+      <div style="font-weight: 700; margin-bottom: 4px; color: #94a3b8;">DISCIPLINES</div>
+      <div class="legend-item"><div class="legend-dot" style="background: #3b82f6;"></div> Core Thinking & Reasoning</div>
+      <div class="legend-item"><div class="legend-dot" style="background: #10b981;"></div> Systems & Complexity</div>
+      <div class="legend-item"><div class="legend-dot" style="background: #8b5cf6;"></div> Probability & Math</div>
+      <div class="legend-item"><div class="legend-dot" style="background: #f59e0b;"></div> Economics & Strategy</div>
+      <div class="legend-item"><div class="legend-dot" style="background: #06b6d4;"></div> Evolution & Biology</div>
+      <div class="legend-item"><div class="legend-dot" style="background: #ec4899;"></div> Psychology & Cognition</div>
+      <div class="legend-item"><div class="legend-dot" style="background: #64748b;"></div> Physics & Engineering</div>
+      <div class="legend-item"><div class="legend-dot" style="background: #ef4444;"></div> Operations & Strategy</div>
+      <div style="margin-top: 6px; font-size: 11px; color: #64748b;">
+        Solid link = Paired | Dashed link = Counter-balance
+      </div>
+    </div>
+
+    <svg id="canvas"></svg>
+  </div>
+
+  <div id="sidebar">
+    <div>
+      <span class="badge" id="side-category">SELECT A NODE</span>
+      <span class="badge" id="side-domain" style="margin-left: 4px;"></span>
+    </div>
+    <h2 id="side-title">The Mental Models Latticework</h2>
+    <div class="aphorism" id="side-aphorism">"Click any node in the graph to inspect its core mechanism, diagnostic checklist, and triggers."</div>
+    <div class="summary" id="side-summary">Models do not operate in isolation. They form an interconnected latticework across physics, evolutionary biology, mathematics, and cognitive science.</div>
+    
+    <div class="section-title">Situational Triggers</div>
+    <ul class="triggers-list" id="side-triggers">
+      <li>Explore links to see how models reinforce each other.</li>
+      <li>Use the CLI (`./cli/mm diagnose`) for interactive terminal queries.</li>
+    </ul>
+  </div>
+
+  <script>
+    const data = {
+  "nodes": [
+    {
+      "id": "chestertons-fence",
+      "title": "Chesterton's Fence",
+      "category": "Core Thinking & Reasoning",
+      "domain": "Philosophy & Evolutionary Systems",
+      "summary": "The principle that reforms, deletions, or removals of existing structures, rules, or code should never be made until the underlying rationale for why they were established in the first place is thoroughly understood.",
+      "aphorism": "Do not remove a fence until you know why it was put there.",
+      "triggers": [
+        "Deleting legacy code, APIs, or database columns that seem \"redundant\" or \"ugly",
+        "Overhauling organizational processes, legal regulations, or operational rules",
+        "When newcomer arrogance urges tearing down existing systems without historic context"
+      ],
+      "color": "#3b82f6"
+    },
+    {
+      "id": "first-principles",
+      "title": "First-Principles Thinking",
+      "category": "Core Thinking & Reasoning",
+      "domain": "Physics & Epistemology",
+      "summary": "The practice of deconstructing a problem down to its most fundamental, irreducible truths and building up a solution from scratch, rather than reasoning by analogy.",
+      "aphorism": "I know of no other way of thinking than starting with the fundamentals and reasoning up from there.",
+      "triggers": [
+        "Facing deeply entrenched legacy assumptions or conventional wisdom",
+        "Seeking 10x breakthrough innovation or radical cost reduction",
+        "When standard industry analogies and \"best practices\" produce stagnation"
+      ],
+      "color": "#3b82f6"
+    },
+    {
+      "id": "hanlons-razor",
+      "title": "Hanlon's Razor",
+      "category": "Core Thinking & Reasoning",
+      "domain": "Cognitive Psychology & Social Systems",
+      "summary": "Never attribute to malice that which is adequately explained by carelessness, ignorance, incompetence, or cognitive overload.",
+      "aphorism": "Never attribute to malice that which is adequately explained by stupidity.",
+      "triggers": [
+        "Interpersonal conflict, broken commitments, or team friction",
+        "Unexplained API breakages, customer complaints, or vendor slip-ups",
+        "Tendency to build paranoid conspiracy narratives around simple administrative errors"
+      ],
+      "color": "#3b82f6"
+    },
+    {
+      "id": "inversion",
+      "title": "Inversion",
+      "category": "Core Thinking & Reasoning",
+      "domain": "Mathematics & Epistemology",
+      "summary": "The practice of approaching problems backwards, focusing on avoiding failure, catastrophe, and stupidity rather than striving for brilliant success.",
+      "aphorism": "Invert, always invert: Turn a situation or problem upside down. What happens if all our plans go wrong?",
+      "triggers": [
+        "Complex projects with high downside risk and non-linear penalties for failure",
+        "When direct forward planning feels opaque, ambiguous, or overwhelming",
+        "Conducting pre-mortems and post-mortems on critical systems"
+      ],
+      "color": "#3b82f6"
+    },
+    {
+      "id": "map-vs-territory",
+      "title": "Map vs. Territory",
+      "category": "Core Thinking & Reasoning",
+      "domain": "Epistemology & General Semantics",
+      "summary": "The fundamental realization that an abstraction, model, diagram, or metric of reality is not the reality itself, and that confusing the two leads to catastrophic misjudgment.",
+      "aphorism": "The map is not the territory.",
+      "triggers": [
+        "Relying exclusively on dashboards, spreadsheets, or proxy metrics",
+        "Disconnect between executive strategy decks and ground-floor realities",
+        "When financial or architectural models fail under sudden real-world shocks"
+      ],
+      "color": "#3b82f6"
+    },
+    {
+      "id": "occams-razor",
+      "title": "Occam's Razor",
+      "category": "Core Thinking & Reasoning",
+      "domain": "Epistemology & Scientific Method",
+      "summary": "Among competing hypotheses or design solutions that predict or achieve identical outcomes, the one requiring the fewest assumptions and simplest components should be selected.",
+      "aphorism": "Entities should not be multiplied beyond necessity.",
+      "triggers": [
+        "Over-engineered software architectures and overly convoluted theories",
+        "Debugging root causes in complex, failing distributed systems",
+        "Evaluating speculative conspiracies vs straightforward mundane explanations"
+      ],
+      "color": "#3b82f6"
+    },
+    {
+      "id": "second-order-thinking",
+      "title": "Second-Order Thinking",
+      "category": "Core Thinking & Reasoning",
+      "domain": "Systems Dynamics & Philosophy",
+      "summary": "The discipline of evaluating decisions not just by their immediate, intended consequences, but by the subsequent ripple effects and non-linear reactions that follow.",
+      "aphorism": "And then what?",
+      "triggers": [
+        "Policy changes, regulatory interventions, and incentive shifts",
+        "Refactoring core system interfaces with dependent consumers",
+        "Fast decisions offering immediate relief with deferred long-term costs"
+      ],
+      "color": "#3b82f6"
+    },
+    {
+      "id": "asymmetric-payoffs",
+      "title": "Asymmetric Payoffs",
+      "category": "Economics, Strategy & Games",
+      "domain": "Mathematical Finance & Strategy",
+      "summary": "Situations where the potential upside of an action or investment dwarfs the strictly capped, finite downside, creating an overwhelmingly favorable risk-reward profile.",
+      "aphorism": "Look for situations where you can lose 1x your investment if you are wrong, but can gain 10x, 50x, or 100x if you are right.",
+      "triggers": [
+        "Making seed investments, writing technical prototypes, or exploring new markets",
+        "Evaluating speculative initiatives with fixed costs but unbounded potential",
+        "Structuring contracts, licenses, and options"
+      ],
+      "color": "#f59e0b"
+    },
+    {
+      "id": "network-effects",
+      "title": "Network Effects",
+      "category": "Economics, Strategy & Games",
+      "domain": "Information Theory & Economics",
+      "summary": "The economic dynamic where a product, platform, or service becomes exponentially more valuable to existing and prospective users as more participants join and utilize the network.",
+      "aphorism": "The value of a telecommunications network is proportional to the square of the number of connected users of the system ($n^2$).",
+      "triggers": [
+        "Designing platforms, protocols, developer ecosystems, and marketplaces",
+        "Evaluating sustainable competitive moats and switching costs",
+        "Overcoming the cold-start problem in two-sided marketplaces"
+      ],
+      "color": "#f59e0b"
+    },
+    {
+      "id": "opportunity-cost",
+      "title": "Opportunity Cost",
+      "category": "Economics, Strategy & Games",
+      "domain": "Microeconomics & Capital Allocation",
+      "summary": "The true cost of any choice is not merely the financial outlay, but the lost value of the next best alternative that must be forgone as a consequence.",
+      "aphorism": "The cost of anything is the amount of life you exchange for it.",
+      "triggers": [
+        "Budgeting engineering time, roadmaps, and capital investments",
+        "Saying \"yes\" to low-impact commitments or feature requests",
+        "Assessing internal build-vs-buy decisions"
+      ],
+      "color": "#f59e0b"
+    },
+    {
+      "id": "red-queen-effect",
+      "title": "The Red Queen Effect",
+      "category": "Evolution & Biological Systems",
+      "domain": "Evolutionary Biology & Ecology",
+      "summary": "The principle that in a co-evolving, competitive system, continuous adaptation, innovation, and exertion are required simply to maintain one's current relative standing and avoid extinction.",
+      "aphorism": "Now, here, you see, it takes all the running you can do, to keep in the same place. If you want to get somewhere else, you must run at least twice as fast as that!",
+      "triggers": [
+        "Rapidly shifting competitive landscapes, AI revolutions, and arms races",
+        "Staying relevant in an evolving professional or technical industry",
+        "Cybersecurity offense vs. defense dynamics"
+      ],
+      "color": "#06b6d4"
+    },
+    {
+      "id": "ooda-loop",
+      "title": "The OODA Loop",
+      "category": "Operations & High-Stakes Strategy",
+      "domain": "Military Strategy & Operational Cybernetics",
+      "summary": "A four-step decision cycle (Observe, Orient, Decide, Act) emphasizing that the competitor or system capable of processing and resetting the loop faster and more accurately dictates the conflict and causes adversary collapse.",
+      "aphorism": "He who can handle the quickest rate of change survives.",
+      "triggers": [
+        "Fast-paced competitive environments, live incident response, and negotiations",
+        "Operating under imperfect information and high uncertainty",
+        "Rapid prototyping, agile product feedback, and tactical maneuvering"
+      ],
+      "color": "#ef4444"
+    },
+    {
+      "id": "margin-of-safety",
+      "title": "Margin of Safety",
+      "category": "Physics & Engineering",
+      "domain": "Structural Engineering & Value Investing",
+      "summary": "The practice of intentionally designing excess buffer capacity into a system, bridge, calculation, or financial allocation to absorb unexpected stress, variance, human error, and unknown unknowns.",
+      "aphorism": "You don't drive a 9,800-pound truck across a bridge built to hold exactly 10,000 pounds. You build a bridge that holds 30,000 pounds.",
+      "triggers": [
+        "Sizing cloud infrastructure, server capacities, or database clusters",
+        "Financial runway planning, cash reserves, and debt covenants",
+        "Civil engineering, mission-critical systems, and life-support design"
+      ],
+      "color": "#64748b"
+    },
+    {
+      "id": "base-rate-fallacy",
+      "title": "Base Rate Fallacy",
+      "category": "Probability & Mathematics",
+      "domain": "Bayesian Probability & Cognitive Psychology",
+      "summary": "The cognitive tendency to ignore general prior statistical distribution rates in favor of specific, vivid, but unrepresentative descriptive anecdotes or test results.",
+      "aphorism": "When you hear hoofbeats, think horses, not zebras.",
+      "triggers": [
+        "Evaluating medical screening tests or fraud detection alerts",
+        "Assessing startup success probabilities or project timeline forecasts",
+        "Hiring decisions influenced by impressive interview charisma over past performance"
+      ],
+      "color": "#8b5cf6"
+    },
+    {
+      "id": "ergodicity",
+      "title": "Ergodicity & Absorbing Barriers",
+      "category": "Probability & Mathematics",
+      "domain": "Statistical Mechanics & Probability",
+      "summary": "The critical distinction between the average outcome of a group across parallel worlds (ensemble average) and the average outcome of a single individual operating sequentially over time (time average).",
+      "aphorism": "In an ergodic system, the average of one person over time equals the average of many people at one point in time. Real life is almost never ergodic.",
+      "triggers": [
+        "Decisions involving existential risk, bankruptcy, or irreversible data deletion",
+        "High-leverage financial investments and \"Russian Roulette\" dynamics",
+        "When an activity has positive theoretical expected value but a non-zero probability of total wipeout"
+      ],
+      "color": "#8b5cf6"
+    },
+    {
+      "id": "expected-value",
+      "title": "Expected Value",
+      "category": "Probability & Mathematics",
+      "domain": "Probability & Decision Theory",
+      "summary": "The anticipated value of an investment, decision, or action calculated by multiplying each possible outcome by its mathematical probability and summing the results.",
+      "aphorism": "Take the probability of loss times the amount of possible loss from the probability of gain times the amount of possible gain. That is what we're trying to do.",
+      "triggers": [
+        "High-stakes bets, capital allocation, and risky product feature launches",
+        "Making decisions under uncertainty where outcomes have extreme variability",
+        "When a choice has a high probability of a small gain but a tiny probability of total ruin"
+      ],
+      "color": "#8b5cf6"
+    },
+    {
+      "id": "loss-aversion",
+      "title": "Loss Aversion",
+      "category": "Psychology & Human Behavior",
+      "domain": "Behavioral Economics & Cognitive Psychology",
+      "summary": "The psychological phenomenon where the pain of losing something is cognitively experienced as roughly twice as intense as the pleasure of gaining an equivalent amount.",
+      "aphorism": "Losses loom larger than gains.",
+      "triggers": [
+        "Reluctance to cut losses on failing projects, stocks, or product lines",
+        "User behavior in freemium conversions, trials, and subscription cancellations",
+        "Risk paralysis in negotiations and strategic pivots"
+      ],
+      "color": "#ec4899"
+    },
+    {
+      "id": "antifragility",
+      "title": "Antifragility",
+      "category": "Systems & Complexity",
+      "domain": "Mathematical Risk & Systems Theory",
+      "summary": "The property of systems that increase in capability, resilience, or robustness as a consequence of stressors, volatility, noise, mistakes, faults, attacks, or failures.",
+      "aphorism": "Some things benefit from shocks; they thrive and grow when exposed to volatility, randomness, disorder, and stressors.",
+      "triggers": [
+        "Designing systems operating in highly unpredictable, hostile, or chaotic environments",
+        "Portfolio construction, distributed architecture, and organizational design",
+        "Evaluating over-optimized, brittle processes susceptible to sudden shocks"
+      ],
+      "color": "#10b981"
+    },
+    {
+      "id": "feedback-loops",
+      "title": "Feedback Loops (Reinforcing & Balancing)",
+      "category": "Systems & Complexity",
+      "domain": "Cybernetics & Systems Dynamics",
+      "summary": "The circular causality where the output of a system circles back to either amplify (reinforcing) or stabilize (balancing) the initial input, driving exponential change or equilibrium.",
+      "aphorism": "You cannot understand a system simply by looking at its parts; you must look at how the outputs of the parts circulate back to influence their own causes.",
+      "triggers": [
+        "Viral growth, compounding effects, or vicious downward spirals",
+        "Regulating temperature, queue lengths, or inventory levels",
+        "When small interventions produce disproportionately explosive or dampened results"
+      ],
+      "color": "#10b981"
+    },
+    {
+      "id": "theory-of-constraints",
+      "title": "Theory of Constraints",
+      "category": "Systems & Complexity",
+      "domain": "Operations Research & Systems Engineering",
+      "summary": "The principle that any manageable system is limited in achieving more of its goals by a very small number of constraints (typically just one at any given time), and that any improvement made outside of that bottleneck is an illusion.",
+      "aphorism": "A chain is no stronger than its weakest link. Any improvement not made at the constraint is an illusion.",
+      "triggers": [
+        "Optimizing workflows, build pipelines, or business throughput",
+        "Resolving chronic delivery delays and backlogged operations",
+        "When teams work frantically but overall organizational output fails to increase"
+      ],
+      "color": "#10b981"
+    }
+  ],
+  "links": [
+    {
+      "source": "chestertons-fence",
+      "target": "second-order-thinking",
+      "type": "paired"
+    },
+    {
+      "source": "chestertons-fence",
+      "target": "hanlons-razor",
+      "type": "paired"
+    },
+    {
+      "source": "chestertons-fence",
+      "target": "margin-of-safety",
+      "type": "paired"
+    },
+    {
+      "source": "chestertons-fence",
+      "target": "first-principles",
+      "type": "counter"
+    },
+    {
+      "source": "first-principles",
+      "target": "inversion",
+      "type": "paired"
+    },
+    {
+      "source": "first-principles",
+      "target": "second-order-thinking",
+      "type": "paired"
+    },
+    {
+      "source": "first-principles",
+      "target": "occams-razor",
+      "type": "paired"
+    },
+    {
+      "source": "hanlons-razor",
+      "target": "occams-razor",
+      "type": "paired"
+    },
+    {
+      "source": "inversion",
+      "target": "second-order-thinking",
+      "type": "paired"
+    },
+    {
+      "source": "inversion",
+      "target": "margin-of-safety",
+      "type": "paired"
+    },
+    {
+      "source": "inversion",
+      "target": "antifragility",
+      "type": "paired"
+    },
+    {
+      "source": "map-vs-territory",
+      "target": "first-principles",
+      "type": "paired"
+    },
+    {
+      "source": "map-vs-territory",
+      "target": "base-rate-fallacy",
+      "type": "paired"
+    },
+    {
+      "source": "map-vs-territory",
+      "target": "second-order-thinking",
+      "type": "paired"
+    },
+    {
+      "source": "occams-razor",
+      "target": "theory-of-constraints",
+      "type": "paired"
+    },
+    {
+      "source": "second-order-thinking",
+      "target": "theory-of-constraints",
+      "type": "paired"
+    },
+    {
+      "source": "asymmetric-payoffs",
+      "target": "antifragility",
+      "type": "paired"
+    },
+    {
+      "source": "asymmetric-payoffs",
+      "target": "expected-value",
+      "type": "paired"
+    },
+    {
+      "source": "asymmetric-payoffs",
+      "target": "margin-of-safety",
+      "type": "paired"
+    },
+    {
+      "source": "opportunity-cost",
+      "target": "second-order-thinking",
+      "type": "paired"
+    },
+    {
+      "source": "opportunity-cost",
+      "target": "expected-value",
+      "type": "paired"
+    },
+    {
+      "source": "opportunity-cost",
+      "target": "theory-of-constraints",
+      "type": "paired"
+    },
+    {
+      "source": "red-queen-effect",
+      "target": "network-effects",
+      "type": "paired"
+    },
+    {
+      "source": "red-queen-effect",
+      "target": "antifragility",
+      "type": "paired"
+    },
+    {
+      "source": "ooda-loop",
+      "target": "antifragility",
+      "type": "paired"
+    },
+    {
+      "source": "margin-of-safety",
+      "target": "ergodicity",
+      "type": "paired"
+    },
+    {
+      "source": "margin-of-safety",
+      "target": "antifragility",
+      "type": "paired"
+    },
+    {
+      "source": "margin-of-safety",
+      "target": "theory-of-constraints",
+      "type": "paired"
+    },
+    {
+      "source": "base-rate-fallacy",
+      "target": "expected-value",
+      "type": "paired"
+    },
+    {
+      "source": "base-rate-fallacy",
+      "target": "occams-razor",
+      "type": "paired"
+    },
+    {
+      "source": "ergodicity",
+      "target": "inversion",
+      "type": "paired"
+    },
+    {
+      "source": "ergodicity",
+      "target": "expected-value",
+      "type": "paired"
+    },
+    {
+      "source": "ergodicity",
+      "target": "antifragility",
+      "type": "paired"
+    },
+    {
+      "source": "ergodicity",
+      "target": "expected-value",
+      "type": "counter"
+    },
+    {
+      "source": "expected-value",
+      "target": "margin-of-safety",
+      "type": "paired"
+    },
+    {
+      "source": "loss-aversion",
+      "target": "expected-value",
+      "type": "paired"
+    },
+    {
+      "source": "loss-aversion",
+      "target": "asymmetric-payoffs",
+      "type": "paired"
+    },
+    {
+      "source": "feedback-loops",
+      "target": "second-order-thinking",
+      "type": "paired"
+    },
+    {
+      "source": "feedback-loops",
+      "target": "network-effects",
+      "type": "paired"
+    },
+    {
+      "source": "feedback-loops",
+      "target": "theory-of-constraints",
+      "type": "paired"
+    },
+    {
+      "source": "theory-of-constraints",
+      "target": "first-principles",
+      "type": "paired"
+    }
+  ]
+};
+    const container = document.getElementById("graph-container");
+    const width = container.clientWidth;
+    const height = container.clientHeight;
+
+    const svg = d3.select("#canvas")
+      .attr("viewBox", [0, 0, width, height]);
+
+    const g = svg.append("g");
+
+    const zoom = d3.zoom()
+      .scaleExtent([0.2, 4])
+      .on("zoom", (event) => {
+        g.attr("transform", event.transform);
+      });
+
+    svg.call(zoom);
+
+    function resetZoom() {
+      svg.transition().duration(750).call(zoom.transform, d3.zoomIdentity.translate(width / 4, height / 4).scale(0.85));
+    }
+
+    const simulation = d3.forceSimulation(data.nodes)
+      .force("link", d3.forceLink(data.links).id(d => d.id).distance(120))
+      .force("charge", d3.forceManyBody().strength(-350))
+      .force("center", d3.forceCenter(width / 2, height / 2))
+      .force("collision", d3.forceCollide().radius(45));
+
+    function reheatSimulation() {
+      simulation.alpha(1).restart();
+    }
+
+    // Draw links
+    const link = g.append("g")
+      .selectAll("line")
+      .data(data.links)
+      .join("line")
+      .attr("stroke", d => d.type === "paired" ? "#38bdf8" : "#ec4899")
+      .attr("stroke-opacity", 0.6)
+      .attr("stroke-width", d => d.type === "paired" ? 1.5 : 2)
+      .attr("stroke-dasharray", d => d.type === "counter" ? "5,5" : "none");
+
+    // Draw nodes
+    const node = g.append("g")
+      .selectAll("g")
+      .data(data.nodes)
+      .join("g")
+      .attr("cursor", "pointer")
+      .call(d3.drag()
+        .on("start", dragstarted)
+        .on("drag", dragged)
+        .on("end", dragended));
+
+    node.append("circle")
+      .attr("r", 14)
+      .attr("fill", d => d.color)
+      .attr("stroke", "#0f172a")
+      .attr("stroke-width", 2)
+      .attr("filter", "drop-shadow(0 2px 6px rgba(0,0,0,0.5))");
+
+    node.append("text")
+      .text(d => d.title)
+      .attr("x", 18)
+      .attr("y", 5)
+      .attr("font-size", "11px")
+      .attr("font-weight", "600")
+      .attr("fill", "#f8fafc")
+      .attr("stroke", "#0f172a")
+      .attr("stroke-width", 2.5)
+      .attr("paint-order", "stroke");
+
+    node.on("click", (event, d) => {
+      selectNode(d);
+    });
+
+    function selectNode(d) {
+      document.getElementById("side-category").textContent = d.category;
+      document.getElementById("side-domain").textContent = d.domain;
+      document.getElementById("side-title").textContent = d.title;
+      document.getElementById("side-aphorism").textContent = d.aphorism ? `"${d.aphorism}"` : `[${d.title}]`;
+      document.getElementById("side-summary").textContent = d.summary;
+      
+      const triggersEl = document.getElementById("side-triggers");
+      triggersEl.innerHTML = "";
+      if (d.triggers && d.triggers.length > 0) {
+        d.triggers.forEach(t => {
+          const li = document.createElement("li");
+          li.textContent = t;
+          triggersEl.appendChild(li);
+        });
+      } else {
+        triggersEl.innerHTML = "<li>No specific triggers listed.</li>";
+      }
+    }
+
+    simulation.on("tick", () => {
+      link
+        .attr("x1", d => d.source.x)
+        .attr("y1", d => d.source.y)
+        .attr("x2", d => d.target.x)
+        .attr("y2", d => d.target.y);
+
+      node.attr("transform", d => `translate(${d.x},${d.y})`);
+    });
+
+    function dragstarted(event, d) {
+      if (!event.active) simulation.alphaTarget(0.3).restart();
+      d.fx = d.x;
+      d.fy = d.y;
+    }
+
+    function dragged(event, d) {
+      d.fx = event.x;
+      d.fy = event.y;
+    }
+
+    function dragended(event, d) {
+      if (!event.active) simulation.alphaTarget(0);
+      d.fx = null;
+      d.fy = null;
+    }
+
+    // Select first node by default
+    if (data.nodes.length > 0) {
+      selectNode(data.nodes[0]);
+    }
+  </script>
+</body>
+</html>

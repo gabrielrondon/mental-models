@@ -1,0 +1,179 @@
+#!/usr/bin/env python3
+"""
+CLI entry point for The Mental Models Latticework.
+Command-line interface to search, inspect, diagnose dilemmas, and explore mental models.
+"""
+
+import sys
+import argparse
+import textwrap
+from pathlib import Path
+
+# Add parent directory to sys.path
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from mm_core import ModelRepository
+
+# ANSI Color codes
+BOLD = "\033[1m"
+CYAN = "\033[36m"
+GREEN = "\033[32m"
+YELLOW = "\033[33m"
+MAGENTA = "\033[35m"
+BLUE = "\033[34m"
+RED = "\033[31m"
+RESET = "\033[0m"
+DIM = "\033[2m"
+
+def cmd_list(repo: ModelRepository, args):
+    models = repo.get_all()
+    categories = {}
+    for m in models:
+        cat = m["category"]
+        if cat not in categories:
+            categories[cat] = []
+        categories[cat].append(m)
+        
+    print(f"\n{BOLD}{CYAN}=== The Mental Models Latticework ({len(models)} models) ==={RESET}\n")
+    for cat, cat_models in sorted(categories.items()):
+        print(f"{BOLD}{YELLOW}📂 {cat}{RESET} ({len(cat_models)})")
+        for m in sorted(cat_models, key=lambda x: x["title"]):
+            print(f"  • {BOLD}{m['title']}{RESET} {DIM}({m['id']}){RESET}")
+            if m["summary"]:
+                summary_first = m["summary"].split(".")[0] + "."
+                print(f"    {DIM}{summary_first}{RESET}")
+        print()
+
+def cmd_show(repo: ModelRepository, args):
+    model = repo.get(args.id)
+    if not model:
+        print(f"{RED}Error: Model '{args.id}' not found.{RESET}")
+        print(f"Use {CYAN}mm list{RESET} or {CYAN}mm search <term>{RESET} to find models.")
+        sys.exit(1)
+        
+    print(f"\n{BOLD}{CYAN}# {model['title']}{RESET}")
+    print(f"{DIM}Category: {model['category']} | Domain: {model['domain']}{RESET}\n")
+    
+    if model["aphorism"]:
+        print(f"{BOLD}{YELLOW}> \"{model['aphorism']}\"{RESET}\n")
+        
+    print(f"{BOLD}Summary:{RESET} {model['summary']}\n")
+    
+    if model["triggers"]:
+        print(f"{BOLD}{GREEN}Situational Triggers:{RESET}")
+        for t in model["triggers"]:
+            print(f"  • {t}")
+        print()
+        
+    if model["paired_models"]:
+        print(f"{BOLD}{BLUE}Paired Complementary Models:{RESET}")
+        for p in model["paired_models"]:
+            print(f"  + {p}")
+        print()
+        
+    if model["counter_models"]:
+        print(f"{BOLD}{MAGENTA}Counterbalancing Models:{RESET}")
+        for c in model["counter_models"]:
+            print(f"  ~ {c}")
+        print()
+        
+    print(f"{DIM}Full text available at: {model['file_path'].resolve()}{RESET}\n")
+
+def cmd_search(repo: ModelRepository, args):
+    results = repo.search(args.query)
+    if not results:
+        print(f"\n{YELLOW}No models found matching: '{args.query}'{RESET}\n")
+        return
+        
+    print(f"\n{BOLD}{CYAN}Found {len(results)} model(s) matching '{args.query}':{RESET}\n")
+    for m in results:
+        print(f"• {BOLD}{m['title']}{RESET} {DIM}({m['id']}) [{m['category']}]{RESET}")
+        if m["summary"]:
+            print(f"  {m['summary']}")
+        print()
+
+def cmd_diagnose(repo: ModelRepository, args):
+    dilemma = " ".join(args.dilemma)
+    results = repo.diagnose(dilemma)
+    
+    print(f"\n{BOLD}{CYAN}=== Diagnostic Analysis ==={RESET}")
+    print(f"{BOLD}Problem Statement:{RESET} \"{dilemma}\"\n")
+    
+    if not results:
+        print(f"{YELLOW}No direct trigger matches found. Pulling core reasoning models:{RESET}\n")
+        results = [repo.get("first-principles"), repo.get("inversion"), repo.get("second-order-thinking")]
+        results = [r for r in results if r]
+        
+    print(f"{BOLD}{GREEN}Recommended Latticework Triad for this problem:{RESET}\n")
+    for i, m in enumerate(results[:4], 1):
+        print(f"{BOLD}{i}. {m['title']}{RESET} ({m['domain']})")
+        print(f"   {DIM}Why:{RESET} {m['summary']}")
+        if m["triggers"]:
+            print(f"   {DIM}Matching Triggers:{RESET} {', '.join(m['triggers'][:2])}")
+        print()
+        
+    print(f"{BOLD}Actionable Next Step:{RESET} Run {CYAN}mm show <id>{RESET} on the top models to review their Diagnostic Checklists.\n")
+
+def cmd_random(repo: ModelRepository, args):
+    m = repo.random_model()
+    print(f"\n{BOLD}{CYAN}🎲 Random Reflection Model:{RESET}")
+    print(f"{BOLD}{YELLOW}{m['title']}{RESET} {DIM}({m['domain']} / {m['category']}){RESET}\n")
+    if m["aphorism"]:
+        print(f"\"{m['aphorism']}\"\n")
+    print(f"{m['summary']}\n")
+    if m["triggers"]:
+        print(f"{BOLD}Consider this model today when:{RESET}")
+        for t in m["triggers"]:
+            print(f"  • {t}")
+    print(f"\n{DIM}Run `mm show {m['id']}` for the full diagnostic checklist.{RESET}\n")
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="The Mental Models Latticework: CLI for Human Decision-Making and Reasoning",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=textwrap.dedent("""
+        Examples:
+          mm list                           List all available mental models by discipline
+          mm show first-principles          Inspect a model's triggers, summary, and pairs
+          mm search "uncertainty"           Search across model definitions and triggers
+          mm diagnose "rebuilding legacy"   Get model recommendations for a strategic dilemma
+          mm random                         Get a random model for daily reflection
+        """)
+    )
+    subparsers = parser.add_subparsers(dest="command", help="Command to execute")
+    
+    # list
+    subparsers.add_parser("list", help="List all mental models by category")
+    
+    # show
+    show_parser = subparsers.add_parser("show", help="Display details and checklist for a specific model")
+    show_parser.add_argument("id", help="Model ID (e.g., first-principles, inversion)")
+    
+    # search
+    search_parser = subparsers.add_parser("search", help="Search models by keyword or phrase")
+    search_parser.add_argument("query", help="Search query string")
+    
+    # diagnose
+    diag_parser = subparsers.add_parser("diagnose", help="Diagnose a dilemma and suggest matching models")
+    diag_parser.add_argument("dilemma", nargs="+", help="Description of the problem or strategic challenge")
+    
+    # random
+    subparsers.add_parser("random", help="Show a random mental model for reflection")
+    
+    args = parser.parse_args()
+    if not args.command:
+        parser.print_help()
+        sys.exit(0)
+        
+    repo = ModelRepository()
+    commands = {
+        "list": cmd_list,
+        "show": cmd_show,
+        "search": cmd_search,
+        "diagnose": cmd_diagnose,
+        "random": cmd_random,
+    }
+    
+    commands[args.command](repo, args)
+
+if __name__ == "__main__":
+    main()
