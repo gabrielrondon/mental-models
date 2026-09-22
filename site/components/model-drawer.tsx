@@ -54,13 +54,11 @@ function Body({ model, onBack, canGoBack, scrollRef }: { model: Model; onBack: (
   const done = state.filter(Boolean).length;
   const { byId, open } = useModels();
 
-  // Compact by default on phones: long sections start collapsed with a one-line teaser.
+  // Every section starts open; the chevrons let a reader fold what they have already read.
   const [narrow, setNarrow] = useState(false);
   const [openSections, setOpenSections] = useState<Record<SectionKey, boolean>>({ checklist: true, mechanism: true, cases: true, failures: true, lattice: true, agent: true });
   useEffect(() => {
-    const n = window.matchMedia(NARROW).matches;
-    setNarrow(n);
-    if (n) setOpenSections((s) => ({ ...s, mechanism: false, cases: false, failures: false, agent: false }));
+    setNarrow(window.matchMedia(NARROW).matches);
     scrollRef.current?.scrollTo({ top: 0 });
   }, [scrollRef]);
   const expand = (k: SectionKey) => setOpenSections((s) => ({ ...s, [k]: true }));
