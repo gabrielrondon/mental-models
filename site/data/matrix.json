@@ -1,0 +1,92 @@
+[
+ {
+  "dilemma": "Deleting or refactoring legacy systems",
+  "primary": "chestertons-fence",
+  "complementary": "first-principles",
+  "counter": "second-order-thinking"
+ },
+ {
+  "dilemma": "Big-bang rewrites vs incremental evolution",
+  "primary": "galls-law",
+  "complementary": "theory-of-constraints",
+  "counter": "chestertons-fence"
+ },
+ {
+  "dilemma": "High-stakes risk with asymmetric downside",
+  "primary": "ergodicity",
+  "complementary": "inversion",
+  "counter": "margin-of-safety"
+ },
+ {
+  "dilemma": "Runaway positive or negative spirals",
+  "primary": "feedback-loops",
+  "complementary": "network-effects",
+  "counter": "theory-of-constraints"
+ },
+ {
+  "dilemma": "Prioritizing roadmap or capital allocation",
+  "primary": "opportunity-cost",
+  "complementary": "expected-value",
+  "counter": "comparative-advantage"
+ },
+ {
+  "dilemma": "Resource allocation across fat tails",
+  "primary": "power-laws-pareto",
+  "complementary": "asymmetric-payoffs",
+  "counter": "theory-of-constraints"
+ },
+ {
+  "dilemma": "Slow organizational delivery & backlogs",
+  "primary": "theory-of-constraints",
+  "complementary": "feedback-loops",
+  "counter": "leverage"
+ },
+ {
+  "dilemma": "Interpersonal friction or vendor breakages",
+  "primary": "hanlons-razor",
+  "complementary": "occams-razor",
+  "counter": "proximate-vs-root-cause"
+ },
+ {
+  "dilemma": "Rapid competitor adaptation or arms race",
+  "primary": "red-queen-effect",
+  "complementary": "ooda-loop",
+  "counter": "economic-moats"
+ },
+ {
+  "dilemma": "Hesitation to cut losses on failing projects",
+  "primary": "sunk-cost-fallacy",
+  "complementary": "loss-aversion",
+  "counter": "opportunity-cost"
+ },
+ {
+  "dilemma": "Uncertain forecasts or planning fallacies",
+  "primary": "base-rate-fallacy",
+  "complementary": "map-vs-territory",
+  "counter": "anchoring-bias"
+ },
+ {
+  "dilemma": "Designing systems under hostile volatility",
+  "primary": "antifragility",
+  "complementary": "defense-in-depth",
+  "counter": "margin-of-safety"
+ },
+ {
+  "dilemma": "Shared platform or multi-tenant degradation",
+  "primary": "tragedy-of-the-commons",
+  "complementary": "goodharts-law",
+  "counter": "principal-agent-problem"
+ },
+ {
+  "dilemma": "Navigating live crises under incomplete data",
+  "primary": "fog-of-war",
+  "complementary": "ooda-loop",
+  "counter": "margin-of-safety"
+ },
+ {
+  "dilemma": "Hiring, credentials, and counterfeit claims",
+  "primary": "signaling-theory",
+  "complementary": "circle-of-competence",
+  "counter": "principal-agent-problem"
+ }
+]

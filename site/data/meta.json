@@ -1,0 +1,19 @@
+{
+ "models": 100,
+ "disciplines": 8,
+ "links": 307,
+ "paired": 281,
+ "counter": 26,
+ "ankiCards": 200,
+ "perCategory": {
+  "core": 18,
+  "systems": 15,
+  "probability": 12,
+  "economics": 15,
+  "evolution": 8,
+  "psychology": 13,
+  "physics": 12,
+  "operations": 7
+ },
+ "builtAt": "2026-09-22"
+}

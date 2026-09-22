@@ -1,0 +1,38 @@
+{
+  "name": "mental-models-site",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "data": "node scripts/build-models.mjs",
+    "dev": "npm run data && next dev",
+    "build": "npm run data && next build",
+    "start": "next start",
+    "lint": "eslint"
+  },
+  "dependencies": {
+    "@fontsource/geist-sans": "^5.3.0",
+    "@radix-ui/react-dialog": "^1.1.23",
+    "@radix-ui/react-tabs": "^1.1.21",
+    "clsx": "^2.1.1",
+    "d3": "^7.9.0",
+    "katex": "^0.18.7",
+    "lucide-react": "^1.47.0",
+    "motion": "^13.4.0",
+    "next": "16.3.4",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/d3": "^7.4.3",
+    "@types/katex": "^0.16.8",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.3.4",
+    "marked": "^18.0.13",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}
