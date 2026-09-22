@@ -85,7 +85,7 @@ Models are machine-readable with strict YAML frontmatter and dedicated **AI Agen
 
 ### 3. "The Latticework" Knowledge Graph
 Models do not exist in isolation. Every file connects to others via standard wikilinks (`[[Model Name]]`), compatible with **Obsidian** and **Logseq**.
-- **Interactive Force-Directed Graph**: Open [`docs/graph.html`](docs/graph.html) directly in any browser for an interactive D3.js visualization showing **100 interconnected nodes and 235 cross-disciplinary links**.
+- **Interactive Force-Directed Graph**: Open [`docs/graph.html`](docs/graph.html) directly in any browser for an interactive D3.js visualization showing **100 interconnected nodes and 307 cross-disciplinary links**.
 - **Regenerate Graph**:
   ```bash
   python3 scripts/generate_graph.py

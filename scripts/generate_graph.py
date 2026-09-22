@@ -4,6 +4,7 @@ Interactive Knowledge Graph Generator for The Mental Models Latticework.
 Generates a standalone, beautiful HTML/D3.js force-directed graph viewable in any browser.
 """
 
+import re
 import sys
 import json
 from pathlib import Path
@@ -12,14 +13,55 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "cli"))
 from mm_core import ModelRepository
 
+# Titles in the library are longer than the names used in wikilinks and in
+# paired_models/counter_models ("Ergodicity" for "Ergodicity & Absorbing
+# Barriers", "Map vs Territory" for "Map vs. Territory", "Red Queen Effect" for
+# "The Red Queen Effect"). Resolve by exact title, then by a short alias table,
+# then by unique prefix of the normalised title.
+ALIASES = {
+    "game theory & prisoners dilemma": "nash-equilibrium",
+    "bottlenecks & theory of constraints": "theory-of-constraints",
+    "phase transitions & critical mass": "critical-mass",
+    "pareto principle": "power-laws-pareto",
+}
+
+
+def normalise(name: str) -> str:
+    name = name.lower().replace("[[", "").replace("]]", "")
+    name = re.sub(r"\(.*?\)", "", name)
+    name = re.sub(r"^the\s+", "", name)
+    name = re.sub(r"[.'’]", "", name)
+    return re.sub(r"\s+", " ", name).strip()
+
+
+def make_resolver(models):
+    by_title = {normalise(m["title"]): m["id"] for m in models}
+    ids = {m["id"] for m in models}
+
+    def resolve(name: str):
+        n = normalise(name.split(" (")[0])
+        if n.replace(" ", "-") in ids:
+            return n.replace(" ", "-")
+        if n in by_title:
+            return by_title[n]
+        if n in ALIASES:
+            return ALIASES[n]
+        prefixed = [t for t in by_title if t.startswith(n + " ")]
+        if len(prefixed) == 1:
+            return by_title[prefixed[0]]
+        return None
+
+    return resolve
+
+
 def build_graph_data(repo: ModelRepository):
     models = repo.get_all()
     nodes = []
     links = []
     
-    title_to_id = {m["title"].lower(): m["id"] for m in models}
     id_to_model = {m["id"]: m for m in models}
-    
+    resolve = make_resolver(models)
+
     # Category color mapping
     category_colors = {
         "Core Thinking & Reasoning": "#3b82f6",     # Blue
@@ -44,38 +86,15 @@ def build_graph_data(repo: ModelRepository):
             "color": category_colors.get(m["category"], "#94a3b8")
         })
         
-        # Paired models links
         for p in m["paired_models"]:
-            target_id = None
-            clean_p = p.replace("[[", "").replace("]]", "").strip()
-            if clean_p.lower() in title_to_id:
-                target_id = title_to_id[clean_p.lower()]
-            elif clean_p.lower() in id_to_model:
-                target_id = clean_p.lower()
-                
+            target_id = resolve(p)
             if target_id and target_id != m["id"]:
-                links.append({
-                    "source": m["id"],
-                    "target": target_id,
-                    "type": "paired"
-                })
+                links.append({"source": m["id"], "target": target_id, "type": "paired"})
                 
-        # Counter models links
         for c in m["counter_models"]:
-            # Counter model might have description: "Name (description)"
-            clean_c = c.split("(")[0].strip().replace("[[", "").replace("]]", "")
-            target_id = None
-            if clean_c.lower() in title_to_id:
-                target_id = title_to_id[clean_c.lower()]
-            elif clean_c.lower() in id_to_model:
-                target_id = clean_c.lower()
-                
+            target_id = resolve(c)
             if target_id and target_id != m["id"]:
-                links.append({
-                    "source": m["id"],
-                    "target": target_id,
-                    "type": "counter"
-                })
+                links.append({"source": m["id"], "target": target_id, "type": "counter"})
                 
     # Deduplicate links
     unique_links = []
