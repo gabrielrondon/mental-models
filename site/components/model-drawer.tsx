@@ -15,8 +15,8 @@ import { FavButton } from "./fav-button";
 
 type SectionKey = "checklist" | "mechanism" | "cases" | "failures" | "lattice" | "agent";
 const SECTIONS: { key: SectionKey; label: string }[] = [
-  { key: "checklist", label: "Checklist" },
   { key: "mechanism", label: "Mechanism" },
+  { key: "checklist", label: "Checklist" },
   { key: "cases", label: "Cases" },
   { key: "failures", label: "Failure modes" },
   { key: "lattice", label: "Lattice" },
@@ -66,7 +66,7 @@ function Body({ model, onBack, canGoBack, scrollRef }: { model: Model; onBack: (
 
   // Section bar: jump within the drawer and track the section in view.
   const refs = useRef<Partial<Record<SectionKey, HTMLElement | null>>>({});
-  const [active, setActive] = useState<SectionKey>("checklist");
+  const [active, setActive] = useState<SectionKey>("mechanism");
   const lock = useRef(0);
   const jump = (k: SectionKey) => {
     expand(k);
@@ -83,7 +83,7 @@ function Body({ model, onBack, canGoBack, scrollRef }: { model: Model; onBack: (
     const box = scrollRef.current;
     if (!box || Date.now() < lock.current) return;
     const line = box.getBoundingClientRect().top + 130;
-    let cur: SectionKey = "checklist";
+    let cur: SectionKey = "mechanism";
     for (const s of SECTIONS) {
       const el = refs.current[s.key];
       if (el && el.getBoundingClientRect().top <= line) cur = s.key;
@@ -146,6 +146,11 @@ function Body({ model, onBack, canGoBack, scrollRef }: { model: Model; onBack: (
           {model.triggers.map((t) => <span key={t} className="chip">{t}</span>)}
         </div>
 
+        <Section k="mechanism" refs={refs} icon={<GitBranch size={15} />} title="Core mechanism" sub="The principle and the science behind it"
+          collapsible open={openSections.mechanism} onToggle={() => toggleSection("mechanism")} teaser={teaser(model.mechanismHtml)}>
+          <div className="prose-mm" dangerouslySetInnerHTML={{ __html: model.mechanismHtml }} />
+        </Section>
+
         <Section k="checklist" refs={refs} icon={<ListChecks size={15} />} title="Diagnostic checklist" sub={model.checklistIntro ? undefined : "Work through it while you analyse the decision"}
           right={<span className="mono text-[12px] text-dim">{done}/{model.checklist.length}{done > 0 && <button type="button" onClick={reset} className="ml-3 inline-flex items-center gap-1 hover:text-text"><RotateCcw size={12} /> reset</button>}</span>}>
           {model.checklistIntro && <p className="mb-3 text-[14px] text-dim" dangerouslySetInnerHTML={{ __html: model.checklistIntro }} />}
@@ -158,11 +163,6 @@ function Body({ model, onBack, canGoBack, scrollRef }: { model: Model; onBack: (
             ))}
           </ul>
           <p className="mt-2 text-[12px] text-faint">Ticks are saved in this browser only.</p>
-        </Section>
-
-        <Section k="mechanism" refs={refs} icon={<GitBranch size={15} />} title="Core mechanism" sub="The principle and the science behind it"
-          collapsible open={openSections.mechanism} onToggle={() => toggleSection("mechanism")} teaser={teaser(model.mechanismHtml)}>
-          <div className="prose-mm" dangerouslySetInnerHTML={{ __html: model.mechanismHtml }} />
         </Section>
 
         <Section k="cases" refs={refs} icon={<ExternalLink size={15} />} title="Real-world case studies" sub="Technology, business, everyday"
