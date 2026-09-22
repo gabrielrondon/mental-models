@@ -18,6 +18,7 @@ import { readFileSync, writeFileSync, readdirSync, statSync, mkdirSync, copyFile
 import { join, dirname, basename } from "node:path";
 import { fileURLToPath } from "node:url";
 import { marked } from "marked";
+import katex from "katex";
 
 const SITE = dirname(dirname(fileURLToPath(import.meta.url)));
 const REPO = dirname(SITE);
@@ -84,8 +85,37 @@ const sub = (text, heading) => {
   const m = text.match(re);
   return m ? m[1].trim() : "";
 };
-const inline = (md) => marked.parseInline(md);
-const block = (md) => marked.parse(md);
+/**
+ * Math: the models use $inline$ and $$display$$ LaTeX (H_2O, \mathbb{E}[X],
+ * fractions). Render with KaTeX before Markdown so marked never sees the
+ * underscores and asterisks, and keep escaped dollars (\$250) as literal text.
+ */
+function withMath(md, render) {
+  const slots = [];
+  const keep = (html) => { slots.push(html); return `\u0000MATH${slots.length - 1}\u0000`; };
+  const tex = (src, display) => {
+    src = src.replace(/\u0000DOLLAR\u0000/g, "\\$"); // escaped dollars inside math stay literal
+    try { return katex.renderToString(src.trim(), { displayMode: display, throwOnError: true, output: "html" }); }
+    catch (e) { throw new Error(`KaTeX failed on "${src}": ${e.message}`); }
+  };
+  let text = md.replace(/\\\$/g, "\u0000DOLLAR\u0000");
+  text = text.replace(/\$\$([\s\S]+?)\$\$/g, (_, t) => keep(tex(t, true)));
+  text = text.replace(/\$([^$\n]+?)\$/g, (_, t) => keep(tex(t, false)));
+  let html = render(text);
+  html = html.replace(/\u0000MATH(\d+)\u0000/g, (_, i) => slots[+i]);
+  return html.replace(/\u0000DOLLAR\u0000/g, "$");
+}
+
+/** Plain-text fields (aphorism, protocol) cannot carry KaTeX HTML: turn the few LaTeX idioms into Unicode. */
+const SUP = { "0": "⁰", "1": "¹", "2": "²", "3": "³", "4": "⁴", "5": "⁵", "6": "⁶", "7": "⁷", "8": "⁸", "9": "⁹", "-": "⁻" };
+function plainMath(text) {
+  return text.replace(/\$([^$\n]+?)\$/g, (_, t) => t
+    .replace(/\\to/g, "→").replace(/\\infty/g, "∞").replace(/\\approx/g, "≈").replace(/\\times/g, "×").replace(/\\dots/g, "…").replace(/\\le/g, "≤").replace(/\\ge/g, "≥")
+    .replace(/\^\{([\d-]+)\}|\^([\d])/g, (_, a, b) => [...(a ?? b)].map((c) => SUP[c] ?? c).join(""))
+    .replace(/\s+/g, " ").trim());
+}
+const inline = (md) => withMath(md, (t) => marked.parseInline(t));
+const block = (md) => withMath(md, (t) => marked.parse(t));
 
 const files = walk(MODELS).sort();
 const raw = files.map((file) => {
@@ -132,7 +162,7 @@ const models = raw.map(({ meta, body, id, file }) => {
     categoryKey: catKey(meta.category),
     domain: meta.domain,
     summary: meta.summary,
-    aphorism: q ? q[1] : "",
+    aphorism: q ? plainMath(q[1]) : "",
     attribution: q && q[2] && /[A-Za-z]/.test(q[2]) ? q[2].trim().replace(/^[—–-]+\s*/, "") : "",
     triggers: meta.triggers || [],
     paired,
@@ -148,7 +178,7 @@ const models = raw.map(({ meta, body, id, file }) => {
     failureModes: failureItems,
     latticework: latticeItems,
     protocolIntro: inline(protocolIntro),
-    protocol,
+    protocol: plainMath(protocol),
     source: `models/${file.slice(MODELS.length + 1)}`,
     search: [meta.title, meta.domain, meta.category, meta.summary, ...(meta.triggers || []), q ? q[1] : ""].join(" ").toLowerCase(),
   };

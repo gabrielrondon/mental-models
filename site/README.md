@@ -10,7 +10,7 @@ Web interface for the Mental Models Latticework. Next.js 16 (App Router, static 
 - `../README.md`: the problem-to-model matrix table (the 15 curated dilemma rows).
 - `../exports/mental_models_anki.tsv`: counted (TSV records, quoted fields may span lines) and copied to `public/downloads/`.
 
-and writes `data/models.json`, `data/graph.json`, `data/matrix.json`, `data/meta.json`. The build fails if a matrix row does not resolve to a model id.
+and writes `data/models.json`, `data/graph.json`, `data/matrix.json`, `data/meta.json`. LaTeX in the sections (`$H_2O$`, `$$\\mathbb{E}[X] = \\sum ...$$`) is rendered to HTML with KaTeX at build time, before Markdown, so `_` and `*` inside formulas never reach `marked`; escaped dollars (`\\$250`) stay literal. Plain-text fields (aphorism, agent protocol) get a Unicode fallback (`n²`, `→`, `∞`). The build fails on invalid LaTeX. The build fails if a matrix row does not resolve to a model id.
 
 Wikilinks and list entries are resolved to model ids by exact title, an alias table, then unique prefix match (so `[[Ergodicity]]` reaches "Ergodicity & Absorbing Barriers" and `[[Map vs Territory]]` reaches "Map vs. Territory"). Refs that resolve to nothing render as plain chips. Unresolved ones are printed at build time.
 

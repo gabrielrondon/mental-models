@@ -99,10 +99,21 @@ body {
   .prose-mm strong { color: var(--color-text); font-weight: 600; }
   .prose-mm em { font-style: italic; color: #dfe3f0; }
   .prose-mm code { font-family: var(--font-mono); font-size: 13px; background: var(--color-bg-1); border: 1px solid var(--color-line); padding: 1px 5px; border-radius: 5px; }
-  .prose-mm ul { padding-left: 18px; list-style: disc; }
+  .prose-mm ul, .prose-mm ol { padding-left: 20px; margin: 10px 0; }
+  .prose-mm ul { list-style: disc; }
+  .prose-mm ol { list-style: decimal; }
+  .prose-mm ul ul, .prose-mm ol ul { list-style: circle; margin: 6px 0 0; }
   .prose-mm li + li { margin-top: 6px; }
+  .prose-mm li::marker { color: var(--color-faint); }
+  .prose-mm h3, .prose-mm h4 { font-weight: 600; color: var(--color-text); margin: 16px 0 6px; font-size: 15.5px; }
+  .prose-mm blockquote { border-left: 2px solid var(--color-line-2); padding-left: 12px; color: var(--color-dim); margin: 10px 0; }
+  .prose-mm a { color: var(--color-accent); text-decoration: underline; text-underline-offset: 3px; }
+  .prose-mm pre { max-width: 100%; overflow-x: auto; }
+  .prose-mm .katex-display { margin: 14px 0; overflow-x: auto; overflow-y: hidden; padding: 4px 0; }
+  .prose-mm .katex { font-size: 1.02em; }
+  .katex-display > .katex { white-space: normal; }
 
-  .codeblock { max-width: 100%; font-family: var(--font-mono); font-size: 12.5px; line-height: 1.6; background: #05070f; border: 1px solid var(--color-line); border-radius: 14px; padding: 16px 18px; overflow-x: auto; white-space: pre; color: #c9d1e3; }
+  .codeblock { max-width: 100%; font-family: var(--font-mono); font-size: 12.5px; line-height: 1.6; background: #05070f; border: 1px solid var(--color-line); border-radius: 14px; padding: 16px 18px; overflow-x: auto; white-space: pre-wrap; overflow-wrap: anywhere; color: #c9d1e3; }
 
   .checkbox { appearance: none; width: 18px; height: 18px; border-radius: 6px; border: 1.5px solid var(--color-line-2); background: var(--color-bg-1); flex: none; margin-top: 2px; cursor: pointer; position: relative; transition: all .15s; }
   .checkbox:checked { background: var(--cat, var(--color-accent)); border-color: var(--cat, var(--color-accent)); }
@@ -112,6 +123,14 @@ body {
   .glow { position: absolute; inset: auto; pointer-events: none; filter: blur(60px); opacity: .55; }
 
   .scrollbar-thin { scrollbar-width: thin; scrollbar-color: var(--color-line-2) transparent; }
+}
+
+@media (max-width: 640px) {
+  .prose-mm { font-size: 16px; line-height: 1.75; }
+  .lead { font-size: 16.5px; }
+  .aphorism { font-size: 17.5px; }
+  .chip { font-size: 13px; white-space: normal; }
+  .codeblock { font-size: 12.5px; padding: 14px; }
 }
 
 .grid-bg {

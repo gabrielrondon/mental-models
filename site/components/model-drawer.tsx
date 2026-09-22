@@ -62,7 +62,7 @@ function Body({ model, onClose, onBack, canGoBack }: { model: Model; onClose: ()
             {model.attribution && <cite className="mt-1 block text-[12.5px] not-italic text-dim">{model.attribution}</cite>}
           </blockquote>
         )}
-        <p className="mt-5 text-[15.5px] leading-relaxed text-[#c9cee0]">{model.summary}</p>
+        <p className="mt-5 text-[16px] leading-relaxed text-[#c9cee0]">{model.summary}</p>
 
         <div className="mt-6 flex flex-wrap gap-1.5">
           {model.triggers.map((t) => <span key={t} className="chip">{t}</span>)}
@@ -77,7 +77,7 @@ function Body({ model, onClose, onBack, canGoBack }: { model: Model; onClose: ()
           {model.checklistIntro && <p className="mb-3 text-[14px] text-dim" dangerouslySetInnerHTML={{ __html: model.checklistIntro }} />}
           <ul className="flex flex-col gap-2.5">
             {model.checklist.map((item, i) => (
-              <li key={i} className="flex items-start gap-3 rounded-xl border border-line bg-bg-2/60 px-3.5 py-3 text-[14.5px] leading-snug text-[#d5d9e6]">
+              <li key={i} className="flex items-start gap-3 rounded-xl border border-line bg-bg-2/60 px-3.5 py-3 text-[15px] leading-snug text-[#d5d9e6]">
                 <input type="checkbox" className="checkbox" id={`dr-${model.id}-${i}`} checked={state[i] ?? false} onChange={() => toggle(i)} />
                 <label htmlFor={`dr-${model.id}-${i}`} className="cursor-pointer" dangerouslySetInnerHTML={{ __html: item }} />
               </li>
