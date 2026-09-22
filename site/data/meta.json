@@ -1,19 +1,19 @@
 {
- "models": 50,
+ "models": 100,
  "disciplines": 8,
- "links": 140,
- "paired": 134,
- "counter": 6,
- "ankiCards": 100,
+ "links": 307,
+ "paired": 281,
+ "counter": 26,
+ "ankiCards": 200,
  "perCategory": {
-  "core": 12,
-  "systems": 7,
-  "probability": 7,
-  "economics": 8,
-  "evolution": 3,
-  "psychology": 5,
-  "physics": 5,
-  "operations": 3
+  "core": 18,
+  "systems": 15,
+  "probability": 12,
+  "economics": 15,
+  "evolution": 8,
+  "psychology": 13,
+  "physics": 12,
+  "operations": 7
  },
  "builtAt": "2026-09-22"
 }

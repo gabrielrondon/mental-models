@@ -109,7 +109,7 @@ body {
   .prose-mm blockquote { border-left: 2px solid var(--color-line-2); padding-left: 12px; color: var(--color-dim); margin: 10px 0; }
   .prose-mm a { color: var(--color-accent); text-decoration: underline; text-underline-offset: 3px; }
   .prose-mm pre { max-width: 100%; overflow-x: auto; }
-  .prose-mm .katex-display { margin: 14px 0; overflow-x: auto; overflow-y: hidden; padding: 4px 0; }
+  .prose-mm .katex-display { margin: 14px 0; overflow-x: auto; overflow-y: hidden; padding: 6px 2px 10px; scrollbar-width: thin; }
   .prose-mm .katex { font-size: 1.02em; }
   .katex-display > .katex { white-space: normal; }
 

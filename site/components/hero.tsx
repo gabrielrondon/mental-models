@@ -57,7 +57,7 @@ export function Hero({ meta }: { meta: Meta }) {
           <a href={REPO_URL} target="_blank" rel="noopener" className="btn btn-ghost"><GithubIcon size={15} /> Star on GitHub</a>
         </motion.div>
         <div className="mt-14 grid grid-cols-2 gap-x-8 gap-y-8 border-t border-line pt-8 sm:grid-cols-3 lg:grid-cols-5">
-          <Stat value={meta.models} suffix={meta.models > 50 ? "+" : ""} label="Models" delay={.25} />
+          <Stat value={meta.models} label="Models" delay={.25} />
           <Stat value={meta.disciplines} label="Disciplines" delay={.3} />
           <Stat value={meta.links} label="Latticework connections" delay={.35} />
           <Stat value={meta.ankiCards} label="Anki cards" delay={.4} />

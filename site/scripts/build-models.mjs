@@ -38,7 +38,12 @@ export const CATEGORIES = [
   { key: "physics", name: "Physics & Engineering", short: "Physics & Engineering" },
   { key: "operations", name: "Operations & High-Stakes Strategy", short: "Operations & Strategy" },
 ];
-const catKey = (name) => CATEGORIES.find((c) => c.name === name)?.key ?? "core";
+const canonicalCategory = (name) => CATEGORY_ALIASES[name] ?? name;
+const catKey = (name) => {
+  const c = CATEGORIES.find((c) => c.name === canonicalCategory(name));
+  if (!c) throw new Error(`Unknown category "${name}"; add it to CATEGORIES or CATEGORY_ALIASES`);
+  return c.key;
+};
 
 function walk(dir) {
   return readdirSync(dir).flatMap((f) => {
@@ -71,7 +76,14 @@ function parseFrontmatter(content) {
 }
 
 const norm = (s) => s.toLowerCase().replace(/\[\[|\]\]/g, "").replace(/\(.*?\)/g, "").replace(/^the\s+/, "").replace(/[.’']/g, "").replace(/\s+/g, " ").trim();
-const ALIASES = { "game theory & prisoners dilemma": "nash-equilibrium" };
+const ALIASES = {
+  "game theory & prisoners dilemma": "nash-equilibrium",
+  "bottlenecks & theory of constraints": "theory-of-constraints",
+  "phase transitions & critical mass": "critical-mass",
+  "pareto principle": "power-laws-pareto",
+};
+// Front matter category spellings that differ from the canonical eight.
+const CATEGORY_ALIASES = { "Evolution & Biology": "Evolution & Biological Systems" };
 
 /** Body text of "## n. Heading" up to the next "## " heading, trailing rule removed. */
 function section(body, n) {
@@ -158,7 +170,7 @@ const models = raw.map(({ meta, body, id, file }) => {
   return {
     id,
     title: meta.title,
-    category: meta.category,
+    category: canonicalCategory(meta.category),
     categoryKey: catKey(meta.category),
     domain: meta.domain,
     summary: meta.summary,

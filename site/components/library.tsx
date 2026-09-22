@@ -22,7 +22,7 @@ export function Library({ meta }: { meta: Meta }) {
 
   return (
     <section className="container-x py-16 md:py-24" id="library">
-      <SectionHeader eyebrow="The Library" title="Fifty models, eight disciplines, one latticework." lead="Every model ships with a diagnostic checklist, three case studies, its failure modes, its neighbours in the lattice and a reasoning protocol for AI agents." />
+      <SectionHeader eyebrow="The Library" title={`${numberWord(meta.models)} models, ${numberWord(meta.disciplines).toLowerCase()} disciplines, one latticework.`} lead="Every model ships with a diagnostic checklist, three case studies, its failure modes, its neighbours in the lattice and a reasoning protocol for AI agents." />
 
       <div className="card flex items-center gap-3 px-4 py-2">
         <Search size={17} className="text-faint" />
@@ -74,6 +74,9 @@ export function ModelCard({ model, onOpen }: { model: Model; onOpen: () => void 
     </motion.article>
   );
 }
+
+const WORDS: Record<number, string> = { 8: "Eight", 50: "Fifty", 100: "One hundred", 150: "One hundred fifty", 200: "Two hundred" };
+const numberWord = (n: number) => WORDS[n] ?? String(n);
 
 /** Trigger phrases are sentences; keep the first clause for the chip. */
 function shorten(t: string) {

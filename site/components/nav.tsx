@@ -4,6 +4,7 @@ import { REPO_URL } from "@/lib/links";
 import { GithubIcon } from "./ui";
 import { useModels } from "@/lib/store";
 import { Heart } from "lucide-react";
+import meta from "@/data/meta.json";
 
 const LINKS = [
   { href: "/#diagnose", label: "Diagnose" },
@@ -20,7 +21,7 @@ export function Nav() {
         <a href="/" className="flex items-center gap-2.5 font-semibold tracking-tight">
           <Mark />
           <span>Mental Models</span>
-          <span className="kbd hidden sm:inline">v1 · 50 models</span>
+          <span className="kbd hidden sm:inline">{meta.models} models</span>
         </a>
         <nav className="hidden items-center gap-6 text-[14.5px] text-dim md:flex" aria-label="Sections">
           {LINKS.map((l) => (
