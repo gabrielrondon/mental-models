@@ -2,7 +2,7 @@
 id: punctuated-equilibrium
 title: Punctuated Equilibrium
 domain: Evolutionary Biology & Paleontology
-category: Evolution & Biology
+category: Evolution & Biological Systems
 summary: The evolutionary pattern where complex systems experience long periods of static stability (stasis) interrupted by brief, intense bursts of rapid transformation and speciation.
 triggers:
   - When observing industries or technological paradigms that appear static for decades then change overnight
