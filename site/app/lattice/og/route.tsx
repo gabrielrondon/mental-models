@@ -28,10 +28,16 @@ export async function GET(req: Request) {
       <div style={{ width: 1200, height: 630, display: "flex", flexDirection: "column", justifyContent: "space-between", background: "#070a12", color: "#e8ebf4", padding: "56px 64px", fontFamily: "Geist", position: "relative" }}>
         <div style={{ position: "absolute", left: -80, top: -120, width: 520, height: 420, borderRadius: 999, background: "#22d3ee", opacity: 0.16, filter: "blur(80px)" }} />
         <div style={{ position: "absolute", right: -60, top: 140, width: 460, height: 420, borderRadius: 999, background: "#a78bfa", opacity: 0.18, filter: "blur(80px)" }} />
-        <div style={{ display: "flex", alignItems: "center", gap: 14, fontSize: 22, fontWeight: 600 }}>
-          <div style={{ width: 34, height: 34, borderRadius: 9, border: "1.5px solid #22d3ee", background: "#0b0f1d", display: "flex" }} />
-          <span>Mental Models</span>
-          <span style={{ fontSize: 14, letterSpacing: 2, color: "#22d3ee", marginLeft: 10, fontWeight: 500 }}>MY LATTICEWORK</span>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 14, fontSize: 22, fontWeight: 600 }}>
+            <div style={{ width: 34, height: 34, borderRadius: 9, border: "1.5px solid #22d3ee", background: "#0b0f1d", display: "flex" }} />
+            <span>Mental Models</span>
+            <span style={{ fontSize: 14, letterSpacing: 2, color: "#22d3ee", marginLeft: 10, fontWeight: 500 }}>MY LATTICEWORK</span>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", fontSize: 16, color: "#8f97ad" }}>
+            <span style={{ color: "#e8ebf4", fontWeight: 500 }}>mentalmodels.tuturama.com</span>
+            <span>A Tuturama Open Source Initiative</span>
+          </div>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
           <div style={{ fontSize: picked.length > 6 ? 46 : 54, lineHeight: 1.05, letterSpacing: -1.5, fontWeight: 600, maxWidth: 1000 }}>
@@ -47,17 +53,11 @@ export async function GET(req: Request) {
             {rest > 0 && <div style={{ display: "flex", alignItems: "center", padding: "9px 16px", borderRadius: 999, border: "1px solid #2b355a", color: "#8f97ad", fontSize: 21 }}>{`+${rest} more`}</div>}
           </div>
         </div>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", fontSize: 17, color: "#8f97ad" }}>
-          <div style={{ display: "flex", gap: 16 }}>
-            {cats.slice(0, 4).map((c) => (
-              <div key={c.key} style={{ display: "flex", alignItems: "center", gap: 7 }}><div style={{ width: 8, height: 8, borderRadius: 999, background: c.color }} /><span>{c.short}</span></div>
-            ))}
-            {cats.length > 4 && <span>{`+${cats.length - 4} disciplines`}</span>}
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", flexShrink: 0, marginLeft: 24 }}>
-            <span style={{ color: "#e8ebf4", fontWeight: 500 }}>mentalmodels.tuturama.com</span>
-            <span>A Tuturama Open Source Initiative</span>
-          </div>
+        <div style={{ display: "flex", gap: 18, fontSize: 17, color: "#8f97ad" }}>
+          {cats.slice(0, 5).map((c) => (
+            <div key={c.key} style={{ display: "flex", alignItems: "center", gap: 7 }}><div style={{ width: 8, height: 8, borderRadius: 999, background: c.color }} /><span>{c.short}</span></div>
+          ))}
+          {cats.length > 5 && <span>{`+${cats.length - 5} disciplines`}</span>}
         </div>
       </div>
     ),
