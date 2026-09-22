@@ -119,6 +119,14 @@ body {
   .checkbox:checked { background: var(--cat, var(--color-accent)); border-color: var(--cat, var(--color-accent)); }
   .checkbox:checked::after { content: ""; position: absolute; left: 5px; top: 1.5px; width: 5px; height: 10px; border: solid #04131a; border-width: 0 2px 2px 0; transform: rotate(45deg); }
 
+  .fav { display: inline-flex; align-items: center; gap: 6px; color: var(--color-faint); cursor: pointer; border-radius: 10px; transition: color .15s, transform .15s; }
+  .fav:not(.btn) { padding: 6px; margin: -6px; }
+  .fav:hover { color: var(--color-cat-psychology); }
+  .fav.is-on { color: var(--color-cat-psychology); }
+  .fav.is-on .fav-icon { fill: currentColor; }
+  .fav:active .fav-icon { transform: scale(.85); }
+  .fav-icon { transition: transform .15s; }
+
   .hairline { border-top: 1px solid var(--color-line); }
   .glow { position: absolute; inset: auto; pointer-events: none; filter: blur(60px); opacity: .55; }
 

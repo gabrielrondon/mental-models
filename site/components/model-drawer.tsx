@@ -9,6 +9,7 @@ import { categoryByKey } from "@/lib/categories";
 import { useChecklist, useModels } from "@/lib/store";
 import { CopyButton, CategoryBadge } from "./ui";
 import { REPO_URL } from "@/lib/links";
+import { FavButton } from "./fav-button";
 
 export function ModelDrawer() {
   const { selected, close, back, canGoBack } = useModels();
@@ -45,6 +46,8 @@ function Body({ model, onClose, onBack, canGoBack }: { model: Model; onClose: ()
             : <span className="mono text-[11px] text-faint">{model.id}</span>}
         </div>
         <div className="flex items-center gap-2">
+          <FavButton id={model.id} label className="hidden sm:inline-flex" />
+          <FavButton id={model.id} size={17} className="sm:hidden" />
           <a href={`${REPO_URL}/blob/main/${model.source}`} target="_blank" rel="noopener" className="btn btn-sm btn-ghost"><ExternalLink size={14} /> Source</a>
           <Dialog.Close asChild><button type="button" className="btn btn-sm" aria-label="Close"><X size={15} /></button></Dialog.Close>
         </div>

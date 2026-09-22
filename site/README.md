@@ -1,6 +1,6 @@
 # mentalmodels.tuturama.com
 
-Web interface for the Mental Models Latticework. Next.js 16 (App Router, static export), Tailwind v4, Radix Dialog/Tabs, Motion, D3, Lucide. Deployed on Vercel as project `mentalmodels-site` with **Root Directory = `site`**, so the build can read `../models`.
+Web interface for the Mental Models Latticework. Next.js 16 (App Router; `/` is prerendered, `/lattice` is server-rendered for per-link metadata), Tailwind v4, Radix Dialog/Tabs, Motion, D3, Lucide. Deployed on Vercel as project `mentalmodels-site` with **Root Directory = `site`**, so the build can read `../models`.
 
 ## How data gets in
 
@@ -34,6 +34,8 @@ public/         favicon.svg, og.png, downloads/mental_models_anki.tsv
 - **Diagnoser.** The five quick chips and the "all curated dilemmas" list use the README matrix, so the triad is hand-picked. Free text runs `lib/diagnose.ts`, a line-for-line mirror of `ModelRepository.diagnose` in `cli/mm_core.py` (trigger word overlap plus the keyword map). The triad is then primary + first resolvable paired model + first resolvable counter-model of the primary. If the primary's counter-models are not in the library the third slot says so and names them.
 - **Drawer.** `?m=<id>` opens a model on load and the URL is kept in sync, so any model is linkable. Latticework chips push onto a back stack. Checklist ticks persist per model in `localStorage` (per browser, never sent anywhere).
 - **Rendered HTML.** The model sections are injected with `dangerouslySetInnerHTML`. The source is the repository's own Markdown, reviewed in PRs; nothing user-supplied reaches those strings.
+- **My latticework.** Hearts on cards and in the drawer save model ids to `localStorage` (`mm:favorites`). The section on the home page exports the set as Obsidian Markdown (wikilinks grouped by discipline), as an agent prompt (summaries and checklists), and as a share link.
+- **Share page.** `/lattice?ids=a,b,c` (max 24 known ids, unknown ones dropped) renders the set with a "Save to my latticework" button. `generateMetadata` builds a per-link title and description, and `/lattice/og?ids=` renders a 1200×630 card with `next/og` (Geist WOFF from `@fontsource/geist-sans`). Share pages are `noindex`.
 - **Graph.** D3 force simulation; hover isolates a neighbourhood, click opens the drawer, the open model is highlighted. Labels are hidden below 640px except for the focused neighbourhood. Reduced motion is respected (simulation settles before paint).
 
 ## Commands
@@ -41,7 +43,7 @@ public/         favicon.svg, og.png, downloads/mental_models_anki.tsv
 ```bash
 npm install
 npm run dev        # rebuilds data, then next dev
-npm run build      # rebuilds data, then static export to out/
+npm run build      # rebuilds data, then next build
 npm run lint
 ```
 

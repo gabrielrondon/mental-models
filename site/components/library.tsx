@@ -7,6 +7,7 @@ import type { Meta, Model } from "@/lib/types";
 import { CATEGORIES, categoryByKey, type CategoryKey } from "@/lib/categories";
 import { useModels } from "@/lib/store";
 import { CategoryBadge, SectionHeader } from "./ui";
+import { FavButton } from "./fav-button";
 
 export function Library({ meta }: { meta: Meta }) {
   const { models, open } = useModels();
@@ -59,7 +60,7 @@ export function ModelCard({ model, onOpen }: { model: Model; onOpen: () => void 
       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onOpen(); } }} aria-label={`Open ${model.title}`}>
       <div className="mb-3 flex items-center justify-between gap-3">
         <CategoryBadge catKey={model.categoryKey} name={cat.short} />
-        <span className="mono text-[11px] text-faint">{model.id}</span>
+        <span className="flex items-center gap-3"><span className="mono text-[11px] text-faint">{model.id}</span><FavButton id={model.id} /></span>
       </div>
       <h3 className="text-[19px] font-semibold leading-tight tracking-tight">{model.title}</h3>
       {model.aphorism && <p className="aphorism mt-3 line-clamp-2 text-[15px]">“{model.aphorism}”</p>}

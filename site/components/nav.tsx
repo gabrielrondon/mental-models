@@ -2,19 +2,22 @@
 
 import { REPO_URL } from "@/lib/links";
 import { GithubIcon } from "./ui";
+import { useModels } from "@/lib/store";
+import { Heart } from "lucide-react";
 
 const LINKS = [
-  { href: "#diagnose", label: "Diagnose" },
-  { href: "#library", label: "Library" },
-  { href: "#graph", label: "Latticework" },
-  { href: "#tooling", label: "AI & Dev" },
+  { href: "/#diagnose", label: "Diagnose" },
+  { href: "/#library", label: "Library" },
+  { href: "/#graph", label: "Graph" },
+  { href: "/#tooling", label: "AI & Dev" },
 ];
 
 export function Nav() {
+  const { favorites, favsReady } = useModels();
   return (
     <header className="sticky top-0 z-30 border-b border-line/80 bg-bg/70 backdrop-blur-xl">
       <div className="container-x flex h-16 items-center justify-between gap-4">
-        <a href="#top" className="flex items-center gap-2.5 font-semibold tracking-tight">
+        <a href="/" className="flex items-center gap-2.5 font-semibold tracking-tight">
           <Mark />
           <span>Mental Models</span>
           <span className="kbd hidden sm:inline">v1 · 50 models</span>
@@ -24,9 +27,16 @@ export function Nav() {
             <a key={l.href} href={l.href} className="transition-colors hover:text-text">{l.label}</a>
           ))}
         </nav>
-        <a href={REPO_URL} target="_blank" rel="noopener" className="btn btn-sm">
-          <GithubIcon size={15} /> <span className="hidden sm:inline">Star on GitHub</span><span className="sm:hidden">GitHub</span>
-        </a>
+        <div className="flex items-center gap-2">
+          <a href="/#lattice" className="btn btn-sm btn-ghost" aria-label="My latticework">
+            <Heart size={15} className={favsReady && favorites.length ? "fill-cat-psychology text-cat-psychology" : ""} />
+            <span className="hidden sm:inline">My lattice</span>
+            {favsReady && favorites.length > 0 && <span className="mono text-[11px] text-dim">{favorites.length}</span>}
+          </a>
+          <a href={REPO_URL} target="_blank" rel="noopener" className="btn btn-sm">
+            <GithubIcon size={15} /> <span className="hidden sm:inline">Star on GitHub</span><span className="sm:hidden">GitHub</span>
+          </a>
+        </div>
       </div>
     </header>
   );

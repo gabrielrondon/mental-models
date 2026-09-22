@@ -12,6 +12,7 @@ import { LatticeGraph } from "@/components/lattice-graph";
 import { Tooling } from "@/components/tooling";
 import { Footer } from "@/components/footer";
 import { ModelDrawer } from "@/components/model-drawer";
+import { MyLattice } from "@/components/my-lattice";
 
 export default function Page() {
   const m = meta as Meta;
@@ -24,6 +25,8 @@ export default function Page() {
         <Diagnoser matrix={matrix as MatrixRow[]} />
         <div className="hairline" />
         <Library meta={m} />
+        <div className="hairline" />
+        <MyLattice />
         <div className="hairline" />
         <LatticeGraph graph={graph as Graph} />
         <div className="hairline" />
