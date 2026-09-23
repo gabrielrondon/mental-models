@@ -2,7 +2,7 @@
 id: evolutionary-mismatch
 title: Evolutionary Mismatch
 domain: Evolutionary Biology & Behavioral Ecology
-category: Evolution & Biology
+category: Evolution & Biological Systems
 summary: The phenomenon where biological or behavioral traits that evolved to maximize fitness in an ancestral environment become maladaptive or destructive when placed in a radically altered modern context.
 triggers:
   - When analyzing widespread pathological human behaviors (e.g., addiction, anxiety, obesity) in technological societies

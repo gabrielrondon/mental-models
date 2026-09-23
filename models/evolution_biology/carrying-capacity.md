@@ -2,7 +2,7 @@
 id: carrying-capacity
 title: Carrying Capacity
 domain: Ecology & Systems Biology
-category: Evolution & Biology
+category: Evolution & Biological Systems
 summary: The maximum population size or throughput that an environment or system can sustainably sustain without exhausting its resource base or degrading its structural integrity.
 triggers:
   - When observing exponential growth trajectories that assume infinite resource availability
